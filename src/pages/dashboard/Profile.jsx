@@ -7,6 +7,18 @@ import { User, Mail, Shield } from 'lucide-react';
 
 export const Profile = () => {
   const { user } = useSelector(state => state.auth);
+  // Ideally we should have a separate profile slice or state if the user object in auth is just a token shell.
+  // But for now, assuming auth.user is populated via login/signup.
+  // We can add a refresh profile call here if needed.
+
+  // Hardcoded fallback for demo if fields missing
+  const displayUser = {
+    name: user?.name || user?.fullName || 'Student',
+    email: user?.email || 'student@example.com',
+    role: user?.role || 'STUDENT',
+    avatar: user?.avatar || 'https://ui-avatars.com/api/?name=' + (user?.name || 'Student'),
+    id: user?.studentId || user?.id || 'N/A'
+  };
 
   return (
     <div className="space-y-6">
@@ -19,13 +31,13 @@ export const Profile = () => {
         {/* Profile Card */}
         <Card className="p-6 text-center h-fit">
           <div className="w-24 h-24 mx-auto bg-indigo-100 rounded-full mb-4 overflow-hidden border-4 border-white shadow-lg">
-            <img src={user?.avatar} alt={user?.name} className="w-full h-full object-cover" />
+            <img src={displayUser.avatar} alt={displayUser.name} className="w-full h-full object-cover" />
           </div>
-          <h3 className="text-xl font-bold text-slate-800">{user?.name}</h3>
-          <p className="text-slate-500 text-sm mb-4">{user?.email}</p>
+          <h3 className="text-xl font-bold text-slate-800">{displayUser.name}</h3>
+          <p className="text-slate-500 text-sm mb-4">{displayUser.email}</p>
           <div className="inline-flex items-center gap-2 px-3 py-1 bg-indigo-50 text-indigo-700 rounded-full text-xs font-bold uppercase tracking-wider">
             <Shield size={12} />
-            {user?.role}
+            {displayUser.role}
           </div>
         </Card>
 
@@ -34,19 +46,12 @@ export const Profile = () => {
           <h3 className="font-bold text-slate-800 mb-6 pb-2 border-b border-slate-100">Personal Information</h3>
           <form className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Input label="Full Name" value={user?.name} readOnly />
-              <Input label="Student ID" value={user?.id} readOnly />
+              <Input label="Full Name" value={displayUser.name} readOnly />
+              <Input label="Student ID" value={displayUser.id} readOnly />
             </div>
-            <Input label="Email Address" value={user?.email} readOnly />
-            
-            <div className="pt-4 border-t border-slate-100">
-              <h3 className="font-bold text-slate-800 mb-4">Change Password</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
-                <Input label="New Password" type="password" placeholder="••••••••" />
-                <Input label="Confirm Password" type="password" placeholder="••••••••" />
-              </div>
-              <Button>Update Password</Button>
-            </div>
+            <Input label="Email Address" value={displayUser.email} readOnly />
+
+            {/* Password Change Section Omitted for MVP */}
           </form>
         </Card>
       </div>

@@ -11,7 +11,11 @@ export const fetchCourseDetails = createAsyncThunk('courses/fetchDetails', async
     courseApi.getCourseDetails(courseId),
     courseApi.getModules(courseId)
   ]);
-  return { course: course.data, modules: modules.data };
+  // modules.data is { modules: [...] } based on backend controller
+  return {
+    course: course.data.course || course.data,
+    modules: modules.data.modules || modules.data
+  };
 });
 
 const courseSlice = createSlice({

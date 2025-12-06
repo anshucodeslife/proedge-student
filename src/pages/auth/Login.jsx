@@ -32,36 +32,39 @@ export const Login = () => {
             <span>Proedge</span>
           </div>
         </div>
-        
+
         <div className="text-center mb-8">
           <h1 className="text-2xl font-bold text-slate-800 mb-2">Welcome Back</h1>
           <p className="text-slate-500">Sign in to continue learning</p>
         </div>
 
         <form className="flex flex-col gap-5" onSubmit={handleSubmit}>
-          <Input 
-            label="Email Address" 
-            type="email" 
-            value={email} 
-            onChange={(e) => setEmail(e.target.value)} 
+          <Input
+            label="Email Address"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             placeholder="student@proedge.com"
           />
-          <Input 
-            label="Password" 
-            type="password" 
-            value={password} 
-            onChange={(e) => setPassword(e.target.value)} 
+          <Input
+            label="Password"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
             placeholder="••••••••"
           />
-          
+
           {error && <div className="text-red-500 text-sm text-center bg-red-50 p-2 rounded">{error}</div>}
 
           <Button type="submit" isLoading={loading} className="mt-2 w-full">
             Sign In
           </Button>
-          
+
           <div className="text-center text-sm text-slate-500 mt-2">
-             <Link to="/auth/forgot-password" className="text-indigo-600 font-medium hover:underline">Forgot Password?</Link>
+            <Link to="/auth/forgot-password" className="text-indigo-600 font-medium hover:underline">Forgot Password?</Link>
+          </div>
+          <div className="text-center text-sm text-slate-500 mt-4">
+            Don't have an account? <Link to="/auth/signup" className="text-indigo-600 font-medium hover:underline">Sign Up</Link>
           </div>
         </form>
       </div>

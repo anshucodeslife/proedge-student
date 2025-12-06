@@ -12,6 +12,11 @@ export const fetchProfile = createAsyncThunk('auth/fetchProfile', async () => {
   return response.data;
 });
 
+export const signupUser = createAsyncThunk('auth/signup', async (userData) => {
+  const response = await authApi.signupWithId(userData);
+  return response.data;
+});
+
 const authSlice = createSlice({
   name: 'auth',
   initialState: {
@@ -39,6 +44,23 @@ const authSlice = createSlice({
         state.user = action.payload.user;
       })
       .addCase(loginUser.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
+      .addCase(signupUser.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(signupUser.fulfilled, (state) => {
+        state.loading = false;
+        // Check if backend returns token on signup, otherwise user needs to login.
+        // Assuming signup doesn't auto-login based on typical flows (or it might return token/user).
+        // If it returns token, we can auto-login:
+        // state.token = action.payload.token;
+        // state.user = action.payload.user;
+        // For now, let's assume they need to login or verifying email.
+      })
+      .addCase(signupUser.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
       })

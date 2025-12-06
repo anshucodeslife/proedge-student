@@ -2,6 +2,7 @@ import React from 'react';
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { Layout } from '../components/layout/Layout';
 import { Login } from '../pages/auth/Login';
+import { Signup } from '../pages/auth/Signup';
 import { ForgotPassword } from '../pages/auth/ForgotPassword';
 import { VerifyOtp } from '../pages/auth/VerifyOtp';
 import { Dashboard } from '../pages/dashboard/Dashboard';
@@ -26,6 +27,10 @@ export const router = createBrowserRouter([
   {
     path: '/auth/login',
     element: <Login />
+  },
+  {
+    path: '/auth/signup',
+    element: <Signup />
   },
   {
     path: '/auth/forgot-password',
