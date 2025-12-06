@@ -9,7 +9,9 @@ import { Dashboard } from '../pages/dashboard/Dashboard';
 import { EnrolledCourses } from '../pages/dashboard/EnrolledCourses';
 import { CourseDetails } from '../pages/dashboard/CourseDetails';
 import { LessonPlayer } from '../pages/dashboard/LessonPlayer';
+import { LessonViewer } from '../pages/dashboard/LessonViewer';
 import { Attendance } from '../pages/dashboard/Attendance';
+import { Payments } from '../pages/dashboard/Payments';
 import { Notifications } from '../pages/dashboard/Notifications';
 import { Profile } from '../pages/dashboard/Profile';
 import { useSelector } from 'react-redux';
@@ -65,8 +67,16 @@ export const router = createBrowserRouter([
         element: <LessonPlayer />
       },
       {
+        path: 'course/:courseId/lesson/:lessonId',
+        element: <LessonViewer />
+      },
+      {
         path: 'attendance',
         element: <Attendance />
+      },
+      {
+        path: 'payments',
+        element: <Payments />
       },
       {
         path: 'notifications',
@@ -79,3 +89,4 @@ export const router = createBrowserRouter([
     ]
   }
 ]);
+
