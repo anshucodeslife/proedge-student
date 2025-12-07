@@ -26,15 +26,18 @@ export const Login = () => {
       <div className="w-full max-w-md bg-white rounded-2xl shadow-xl shadow-slate-200/50 p-8 md:p-10 border border-slate-100">
         <div className="flex justify-center mb-8">
           <div className="flex items-center gap-2 font-bold text-2xl text-slate-800">
-            <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-indigo-200">
-              <GraduationCap size={24} />
+            <div className="w-10 h-10 flex items-center justify-center shrink-0">
+              <img src="/proedge_logo.png" alt="Proedge" className="w-full h-full object-contain" />
             </div>
-            <span>Proedge</span>
+            <div className="flex items-center gap-1 leading-none">
+              <span className="tracking-tight text-orange-500">Proedge</span>
+              <span className="tracking-tight text-slate-800">Learning</span>
+            </div>
           </div>
         </div>
 
         <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-slate-800 mb-2">Welcome Back</h1>
+          {/* <h1 className="text-2xl font-bold text-slate-800 mb-2">Welcome Back</h1> */}
           <p className="text-slate-500">Sign in to continue learning</p>
         </div>
 
@@ -56,15 +59,15 @@ export const Login = () => {
 
           {error && <div className="text-red-500 text-sm text-center bg-red-50 p-2 rounded">{error}</div>}
 
-          <Button type="submit" isLoading={loading} className="mt-2 w-full">
+          <Button type="submit" isLoading={loading} className="mt-2 w-full bg-emerald-500 hover:bg-emerald-600 text-white shadow-emerald-200">
             Sign In
           </Button>
 
           <div className="text-center text-sm text-slate-500 mt-2">
             <Link to="/auth/forgot-password" className="text-indigo-600 font-medium hover:underline">Forgot Password?</Link>
           </div>
-          <div className="text-center text-sm text-slate-500 mt-4">
-            Don't have an account? <Link to="/auth/signup" className="text-indigo-600 font-medium hover:underline">Sign Up</Link>
+          <div className="text-center text-sm text-slate-500 mt-6">
+            <a href="https://www.proedgelearning.in/" className="text-slate-400 hover:text-slate-600 transition-colors">← Return to Home</a>
           </div>
         </form>
       </div>
