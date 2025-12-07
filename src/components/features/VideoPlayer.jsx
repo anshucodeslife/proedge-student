@@ -84,7 +84,32 @@ export const VideoPlayer = ({ url, onProgress, onEnded, initialPosition = 0 }) =
       video.removeEventListener('loadedmetadata', handleLoadedMetadata);
       video.removeEventListener('ended', handleEnded);
     };
-  }, [onProgress, onEnded, initialPosition]);
+  }, [onProgress, onEnded]); // Removed initialPosition dependency here
+
+  // Separate effect for initial seeking - runs when url or initialPosition changes
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video || !url || initialPosition <= 0 || hasSeekToInitial.current) return;
+
+    const performSeek = () => {
+      // Small buffer check to ensure we don't seek infinitely if within range
+      if (Math.abs(video.currentTime - initialPosition) > 1) {
+        video.currentTime = initialPosition;
+        setCurrentTime(initialPosition);
+      }
+      hasSeekToInitial.current = true;
+    };
+
+    if (video.readyState >= 1) {
+      performSeek();
+    } else {
+      const onMeta = () => {
+        performSeek();
+      };
+      video.addEventListener('loadedmetadata', onMeta, { once: true });
+      return () => video.removeEventListener('loadedmetadata', onMeta);
+    }
+  }, [url, initialPosition]);
 
   // Reload video when URL changes
   useEffect(() => {

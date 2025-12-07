@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Calendar as CalendarIcon, Download, ChevronLeft, ChevronRight } from 'lucide-react';
-import axios from 'axios';
+import api from '../../api/axios';
 
 const Attendance = () => {
   const [attendanceData, setAttendanceData] = useState([]);
@@ -12,20 +12,27 @@ const Attendance = () => {
     fetchAttendance();
   }, [currentMonth]);
 
+  const formatDate = (date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
   const fetchAttendance = async () => {
     setLoading(true);
     try {
       const startDate = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
       const endDate = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0);
 
-      const res = await axios.get('/student/attendance', {
+      const res = await api.get('/student/attendance', {
         params: {
-          startDate: startDate.toISOString().split('T')[0],
-          endDate: endDate.toISOString().split('T')[0],
+          startDate: formatDate(startDate),
+          endDate: formatDate(endDate),
         },
       });
 
-      const data = res.data.data || [];
+      const data = res.data.data?.attendance || [];
       setAttendanceData(data);
 
       // Calculate stats
@@ -63,8 +70,10 @@ const Attendance = () => {
 
   const getAttendanceForDate = (day) => {
     if (!day) return null;
-    const dateStr = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day)
-      .toISOString().split('T')[0];
+    const year = currentMonth.getFullYear();
+    const month = String(currentMonth.getMonth() + 1).padStart(2, '0');
+    const dayStr = String(day).padStart(2, '0');
+    const dateStr = `${year}-${month}-${dayStr}`;
     return attendanceData.find(a => a.date.split('T')[0] === dateStr);
   };
 

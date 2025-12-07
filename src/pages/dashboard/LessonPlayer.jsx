@@ -93,7 +93,7 @@ export const LessonPlayer = () => {
   }, [activeLesson?.id, activeLesson?.videoUrl]);
 
   // Save progress function
-  const saveProgress = async (currentTime, completed = false) => {
+  const saveProgress = React.useCallback(async (currentTime, completed = false) => {
     if (!activeLesson?.id) return;
 
     try {
@@ -117,21 +117,21 @@ export const LessonPlayer = () => {
     } catch (err) {
       console.error("Error saving progress:", err);
     }
-  };
+  }, [activeLesson?.id]);
 
-  const handleProgress = (currentTime, duration) => {
+  const handleProgress = React.useCallback((currentTime, duration) => {
     const currentSec = Math.floor(currentTime);
     if (currentSec > 0 && currentSec - lastSavedTime.current >= 5) {
       saveProgress(currentTime);
     }
-  };
+  }, [saveProgress]);
 
-  const handleVideoEnded = () => {
+  const handleVideoEnded = React.useCallback(() => {
     if (activeLesson?.id) {
       saveProgress(activeLesson.durationSec || 0, true);
       dispatch(fetchCourseProgress(courseId));
     }
-  };
+  }, [activeLesson, courseId, dispatch, saveProgress]);
 
   const handleLessonSelect = (lesson) => {
     if (activeLesson?.id && lastSavedTime.current > 0) {

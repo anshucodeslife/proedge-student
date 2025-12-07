@@ -10,6 +10,7 @@ export const CourseDetails = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { currentCourse, currentModules, progress, loading } = useSelector(state => state.courses);
+  const [imageError, setImageError] = React.useState(false);
 
   useEffect(() => {
     if (courseId) {
@@ -33,11 +34,23 @@ export const CourseDetails = () => {
     <div className="space-y-8">
       {/* Hero Section */}
       <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex flex-col md:flex-row gap-8">
-        <div className="w-full md:w-1/3 aspect-video rounded-xl overflow-hidden bg-slate-100">
-          {currentCourse.thumbnail ? (
-            <img src={currentCourse.thumbnail} alt={currentCourse.title} className="w-full h-full object-cover" />
+        <div className="w-full md:w-1/3 aspect-video rounded-xl overflow-hidden bg-slate-100 relative">
+          {currentCourse.thumbnail && !imageError ? (
+            <img
+              src={currentCourse.thumbnail}
+              alt={currentCourse.title}
+              className="w-full h-full object-cover"
+              onError={(e) => {
+                // Try fallback to image field if thumbnail fails, otherwise show error state
+                if (currentCourse.image && e.target.src !== currentCourse.image && !currentCourse.image.includes(currentCourse.thumbnail)) {
+                  e.target.src = currentCourse.image;
+                } else {
+                  setImageError(true);
+                }
+              }}
+            />
           ) : (
-            <div className="w-full h-full flex items-center justify-center text-slate-400">
+            <div className="w-full h-full flex items-center justify-center text-slate-400 bg-slate-200">
               <BookOpen size={48} />
             </div>
           )}
