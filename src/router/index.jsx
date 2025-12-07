@@ -14,6 +14,7 @@ import Attendance from '../pages/dashboard/Attendance';
 import { Payments } from '../pages/dashboard/Payments';
 import Notifications from '../pages/dashboard/Notifications';
 import { Profile } from '../pages/dashboard/Profile';
+import { NotFound } from '../pages/NotFound';
 import { useSelector } from 'react-redux';
 
 // Protected Route Wrapper
@@ -85,8 +86,16 @@ export const router = createBrowserRouter([
       {
         path: 'profile',
         element: <Profile />
+      },
+      {
+        path: '*',
+        element: <NotFound />
       }
     ]
+  },
+  {
+    path: '*',
+    element: <Navigate to="/auth/login" replace />
   }
 ]);
 

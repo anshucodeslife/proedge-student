@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchCourseDetails } from '../../store/slices/courseSlice';
+import { fetchCourseDetails, fetchCourseModules } from '../../store/slices/courseSlice';
 import { VideoPlayer } from '../../components/features/VideoPlayer';
 import { LessonList } from '../../components/features/LessonList';
 import { studentApi } from '../../api';
@@ -9,25 +9,26 @@ import { studentApi } from '../../api';
 export const LessonPlayer = () => {
   const { courseId } = useParams();
   const dispatch = useDispatch();
-  const { currentCourse, modules } = useSelector(state => state.courses);
+  const { currentCourse, currentModules } = useSelector(state => state.courses);
   const [activeLesson, setActiveLesson] = useState(null);
 
   useEffect(() => {
-    if (courseId && !currentCourse) {
+    if (courseId) {
       dispatch(fetchCourseDetails(courseId));
+      dispatch(fetchCourseModules(courseId));
     }
-  }, [courseId, currentCourse, dispatch]);
+  }, [courseId, dispatch]);
 
   // Ensure modules have lessons and select first one if needed
   useEffect(() => {
-    if (modules && modules.length > 0 && !activeLesson) {
+    if (currentModules && currentModules.length > 0 && !activeLesson) {
       // Find the first lesson in the first module that has lessons
-      const firstModuleWithLessons = modules.find(m => m.lessons && m.lessons.length > 0);
+      const firstModuleWithLessons = currentModules.find(m => m.lessons && m.lessons.length > 0);
       if (firstModuleWithLessons) {
         setActiveLesson(firstModuleWithLessons.lessons[0]);
       }
     }
-  }, [modules, activeLesson]);
+  }, [currentModules, activeLesson]);
 
   // Fetch full lesson details (including signed video URL) when activeLessonId changes
   useEffect(() => {
@@ -71,7 +72,7 @@ export const LessonPlayer = () => {
   };
 
   if (!currentCourse || !activeLesson) {
-    if (modules && modules.length > 0 && !activeLesson) {
+    if (currentModules && currentModules.length > 0 && !activeLesson) {
       return <div className="p-8 text-center">Course has no content yet.</div>;
     }
     return <div className="p-8 text-center">Loading player...</div>;
@@ -96,7 +97,7 @@ export const LessonPlayer = () => {
 
       <div className="w-full lg:w-96 shrink-0 h-full">
         <LessonList
-          modules={modules || []}
+          modules={currentModules || []}
           activeLessonId={activeLesson.id}
           onLessonSelect={handleLessonSelect}
         />
