@@ -5,6 +5,7 @@ import { loginUser } from '../../store/slices/authSlice';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { GraduationCap } from 'lucide-react';
+import Swal from 'sweetalert2';
 
 export const Login = () => {
   const [email, setEmail] = useState('student@proedge.com');
@@ -16,8 +17,23 @@ export const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const result = await dispatch(loginUser({ email, password }));
+
     if (loginUser.fulfilled.match(result)) {
+      Swal.fire({
+        icon: 'success',
+        title: 'Logged In!',
+        text: 'Welcome back to Proedge Learning.',
+        timer: 1500,
+        showConfirmButton: false
+      });
       navigate('/');
+    } else {
+      Swal.fire({
+        icon: 'error',
+        title: 'Login Failed',
+        text: result.payload || 'Invalid email or password.',
+        confirmButtonColor: '#d33'
+      });
     }
   };
 
@@ -57,7 +73,8 @@ export const Login = () => {
             placeholder="••••••••"
           />
 
-          {error && <div className="text-red-500 text-sm text-center bg-red-50 p-2 rounded">{error}</div>}
+          {/* Inline error removed in favor of Swal, but keeping logic just in case user wants fallback, mostly hidden by Swal now */}
+          {/* {error && <div className="text-red-500 text-sm text-center bg-red-50 p-2 rounded">{error}</div>} */}
 
           <Button type="submit" isLoading={loading} className="mt-2 w-full bg-emerald-500 hover:bg-emerald-600 text-white shadow-emerald-200">
             Sign In

@@ -10,9 +10,9 @@ import { EnrolledCourses } from '../pages/dashboard/EnrolledCourses';
 import { CourseDetails } from '../pages/dashboard/CourseDetails';
 import { LessonPlayer } from '../pages/dashboard/LessonPlayer';
 import { LessonViewer } from '../pages/dashboard/LessonViewer';
-import { Attendance } from '../pages/dashboard/Attendance';
+import Attendance from '../pages/dashboard/Attendance';
 import { Payments } from '../pages/dashboard/Payments';
-import { Notifications } from '../pages/dashboard/Notifications';
+import Notifications from '../pages/dashboard/Notifications';
 import { Profile } from '../pages/dashboard/Profile';
 import { useSelector } from 'react-redux';
 

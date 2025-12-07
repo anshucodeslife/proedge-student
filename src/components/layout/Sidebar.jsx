@@ -1,7 +1,8 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, BookOpen, Calendar, Bell, Settings, LogOut, X, GraduationCap } from 'lucide-react';
+import { LayoutDashboard, BookOpen, Calendar, Bell, Settings, LogOut, X } from 'lucide-react';
 import { cn } from '../ui/Button';
+import { Logo } from './Logo';
 
 export const Sidebar = ({ isOpen, onClose, onLogout }) => {
   const menuItems = [
@@ -20,13 +21,13 @@ export const Sidebar = ({ isOpen, onClose, onLogout }) => {
       isOpen ? "translate-x-0" : "-translate-x-full"
     )}>
       <div className="h-20 flex items-center px-6 border-b border-slate-50 justify-between">
-        <div className={cn("flex items-center gap-2 font-bold text-xl text-slate-800 transition-all", !isOpen && "scale-0 w-0 overflow-hidden")}>
-          <img src="/proedge_logo.png" alt="Proedge" className="w-8 h-8 object-contain" />
-          <div className="flex flex-col leading-none">
-            <span className="tracking-tight text-indigo-900 text-sm">proedge</span>
-            <span className="text-[0.5rem] text-slate-400 tracking-widest uppercase font-semibold">Learning</span>
+        {isOpen ? (
+          <Logo />
+        ) : (
+          <div className="w-full flex justify-center">
+            <img src="/proedge_logo.png" alt="Proedge" className="w-8 h-8 object-contain" />
           </div>
-        </div>
+        )}
 
         {/* Mobile Close Button */}
         <button onClick={onClose} className="md:hidden text-slate-400 hover:text-indigo-600">

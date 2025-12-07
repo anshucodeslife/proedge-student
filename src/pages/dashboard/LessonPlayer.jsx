@@ -81,7 +81,10 @@ export const LessonPlayer = () => {
     <div className="h-[calc(100vh-8rem)] flex flex-col lg:flex-row gap-6">
       <div className="flex-1 flex flex-col gap-4">
         <VideoPlayer
-          url={activeLesson.videoUrl}
+          // Prepend S3 domain if it's a relative key (filename)
+          url={activeLesson.videoUrl?.startsWith('http')
+            ? activeLesson.videoUrl
+            : `https://proedge-lms.s3.ap-south-1.amazonaws.com/${activeLesson.videoUrl}`}
           onProgress={handleProgress}
           onEnded={() => console.log('Lesson completed')}
         />
