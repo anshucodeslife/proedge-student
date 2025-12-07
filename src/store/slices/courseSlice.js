@@ -7,7 +7,9 @@ export const fetchEnrolledCourses = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const response = await api.get('/student/courses');
-      return response.data.data.courses;
+      // Handle both { data: { courses: [...] } } and { data: [...] } structures
+      const data = response.data.data;
+      return Array.isArray(data) ? data : (data.courses || data || []);
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch courses');
     }
@@ -20,7 +22,9 @@ export const fetchCourseDetails = createAsyncThunk(
   async (courseId, { rejectWithValue }) => {
     try {
       const response = await api.get(`/student/courses/${courseId}`);
-      return response.data.data;
+      // Backend returns { course, enrollment } structure
+      const data = response.data.data;
+      return data.course || data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch course details');
     }
@@ -33,7 +37,9 @@ export const fetchCourseModules = createAsyncThunk(
   async (courseId, { rejectWithValue }) => {
     try {
       const response = await api.get(`/student/courses/${courseId}/modules`);
-      return response.data.data.modules;
+      // Handle both { data: { modules: [...] } } and { data: [...] } structures
+      const data = response.data.data;
+      return Array.isArray(data) ? data : (data.modules || data || []);
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch modules');
     }
@@ -46,7 +52,8 @@ export const fetchLessonDetails = createAsyncThunk(
   async (lessonId, { rejectWithValue }) => {
     try {
       const response = await api.get(`/student/lessons/${lessonId}`);
-      return response.data.data;
+      const data = response.data.data;
+      return data.lesson || data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch lesson');
     }
@@ -59,7 +66,8 @@ export const fetchCourseProgress = createAsyncThunk(
   async (courseId, { rejectWithValue }) => {
     try {
       const response = await api.get(`/student/courses/${courseId}/progress`);
-      return response.data.data.progress;
+      const data = response.data.data;
+      return data.progress || data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch progress');
     }
@@ -93,22 +101,42 @@ const courseSlice = createSlice({
       // Enrolled Courses
       .addCase(fetchEnrolledCourses.pending, (state) => {
         state.loading = true;
+        state.error = null;
       })
       .addCase(fetchEnrolledCourses.fulfilled, (state, action) => {
         state.loading = false;
-        state.enrolledCourses = action.payload;
+        state.enrolledCourses = action.payload || [];
       })
       .addCase(fetchEnrolledCourses.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
+        state.enrolledCourses = [];
       })
       // Course Details
+      .addCase(fetchCourseDetails.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
       .addCase(fetchCourseDetails.fulfilled, (state, action) => {
+        state.loading = false;
         state.currentCourse = action.payload;
       })
+      .addCase(fetchCourseDetails.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
       // Course Modules
+      .addCase(fetchCourseModules.pending, (state) => {
+        state.loading = true;
+      })
       .addCase(fetchCourseModules.fulfilled, (state, action) => {
-        state.currentModules = action.payload;
+        state.loading = false;
+        state.currentModules = action.payload || [];
+      })
+      .addCase(fetchCourseModules.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+        state.currentModules = [];
       })
       // Lesson Details
       .addCase(fetchLessonDetails.pending, (state) => {
@@ -125,7 +153,7 @@ const courseSlice = createSlice({
       // Course Progress
       .addCase(fetchCourseProgress.fulfilled, (state, action) => {
         const courseId = action.meta.arg;
-        state.progress[courseId] = action.payload;
+        state.progress[courseId] = action.payload || [];
       });
   },
 });

@@ -2,7 +2,19 @@ import React from 'react';
 import { PlayCircle, CheckCircle, Lock, Circle } from 'lucide-react';
 import { cn } from '../ui/Button';
 
-export const LessonList = ({ modules, activeLessonId, onLessonSelect }) => {
+export const LessonList = ({ modules, activeLessonId, onLessonSelect, lessonProgress = {} }) => {
+  // Format duration from seconds to "X min" or "X sec"
+  const formatDuration = (seconds) => {
+    if (!seconds || seconds <= 0) return 'N/A';
+    if (seconds < 60) return `${seconds} sec`;
+    return `${Math.floor(seconds / 60)} min`;
+  };
+
+  // Check if lesson is completed
+  const isLessonCompleted = (lessonId) => {
+    return lessonProgress[lessonId]?.completed || false;
+  };
+
   return (
     <div className="bg-white rounded-xl border border-slate-100 overflow-hidden h-full flex flex-col">
       <div className="p-4 border-b border-slate-100 bg-slate-50">
@@ -17,7 +29,7 @@ export const LessonList = ({ modules, activeLessonId, onLessonSelect }) => {
             <div className="space-y-1">
               {module.lessons?.map((lesson) => {
                 const isActive = lesson.id === activeLessonId;
-                const isCompleted = lesson.isCompleted;
+                const isCompleted = isLessonCompleted(lesson.id) || lesson.completed;
                 const isLocked = false; // Add logic if needed
 
                 return (
@@ -42,9 +54,12 @@ export const LessonList = ({ modules, activeLessonId, onLessonSelect }) => {
                         {lesson.title}
                       </p>
                       <p className="text-xs text-slate-400">
-                        {Math.floor(lesson.duration / 60)} min
+                        {formatDuration(lesson.durationSec || lesson.duration)}
                       </p>
                     </div>
+                    {isCompleted && (
+                      <span className="text-xs text-emerald-500 font-medium">Done</span>
+                    )}
                   </button>
                 );
               })}

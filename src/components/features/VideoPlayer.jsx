@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react';
-import { Play, Pause, Volume2, VolumeX, Maximize, Settings } from 'lucide-react';
+import { Play, Pause, Volume2, VolumeX, Maximize, Settings, AlertCircle } from 'lucide-react';
 
-export const VideoPlayer = ({ url, onProgress, onEnded }) => {
+export const VideoPlayer = ({ url, onProgress, onEnded, initialPosition = 0 }) => {
   const videoRef = useRef(null);
   const containerRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -9,6 +9,9 @@ export const VideoPlayer = ({ url, onProgress, onEnded }) => {
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(1);
+  const hasSeekToInitial = useRef(false);
+  const [videoError, setVideoError] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -59,6 +62,12 @@ export const VideoPlayer = ({ url, onProgress, onEnded }) => {
 
     const handleLoadedMetadata = () => {
       setDuration(video.duration);
+      // Seek to initial position when video is loaded
+      if (initialPosition > 0 && !hasSeekToInitial.current) {
+        video.currentTime = initialPosition;
+        setCurrentTime(initialPosition);
+        hasSeekToInitial.current = true;
+      }
     };
 
     const handleEnded = () => {
@@ -75,7 +84,32 @@ export const VideoPlayer = ({ url, onProgress, onEnded }) => {
       video.removeEventListener('loadedmetadata', handleLoadedMetadata);
       video.removeEventListener('ended', handleEnded);
     };
-  }, [onProgress, onEnded]);
+  }, [onProgress, onEnded, initialPosition]);
+
+  // Reload video when URL changes
+  useEffect(() => {
+    const video = videoRef.current;
+    if (video && url) {
+      hasSeekToInitial.current = false;
+      setVideoError(false);
+      setIsLoading(true);
+      video.load();
+      setIsPlaying(false);
+      setCurrentTime(0);
+    }
+  }, [url]);
+
+  // Handle video error
+  const handleVideoError = () => {
+    setVideoError(true);
+    setIsLoading(false);
+  };
+
+  // Handle video can play
+  const handleCanPlay = () => {
+    setIsLoading(false);
+    setVideoError(false);
+  };
 
   const togglePlay = () => {
     const video = videoRef.current;
@@ -133,7 +167,25 @@ export const VideoPlayer = ({ url, onProgress, onEnded }) => {
         disablePictureInPicture
         controlsList="nodownload noremoteplayback"
         onContextMenu={(e) => e.preventDefault()}
+        onError={handleVideoError}
+        onCanPlay={handleCanPlay}
       />
+
+      {/* Loading Overlay */}
+      {isLoading && !videoError && (
+        <div className="absolute inset-0 flex items-center justify-center bg-black/50">
+          <div className="animate-spin rounded-full h-12 w-12 border-4 border-white border-t-transparent"></div>
+        </div>
+      )}
+
+      {/* Error Overlay */}
+      {videoError && (
+        <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/80 text-white">
+          <AlertCircle size={48} className="text-red-500 mb-4" />
+          <p className="text-lg font-medium">Video not available</p>
+          <p className="text-sm text-gray-400 mt-1">This lesson's video could not be loaded</p>
+        </div>
+      )}
 
       {/* Custom Controls */}
       <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4 opacity-0 group-hover:opacity-100 transition-opacity">

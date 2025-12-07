@@ -18,18 +18,37 @@ export const Dashboard = () => {
 
   useEffect(() => {
     // Fetch progress for each enrolled course
-    enrolledCourses.forEach(course => {
-      dispatch(fetchCourseProgress(course.id));
-    });
+    if (enrolledCourses && enrolledCourses.length > 0) {
+      enrolledCourses.forEach(course => {
+        dispatch(fetchCourseProgress(course.id));
+      });
+    }
   }, [enrolledCourses, dispatch]);
 
   const getProgressPercentage = (courseId) => {
     const courseProgress = progress[courseId];
-    if (!courseProgress || !courseProgress.length) return 0;
-    
-    const completed = courseProgress.filter(p => p.completed).length;
-    const total = courseProgress.length;
-    return total > 0 ? Math.round((completed / total) * 100) : 0;
+    // API returns { progressPercentage, completedLessons, totalLessons, lessons: [...] }
+    if (!courseProgress) return 0;
+
+    // Use direct progressPercentage if available
+    if (courseProgress.progressPercentage !== undefined) {
+      return Math.round(courseProgress.progressPercentage);
+    }
+
+    // Fallback: calculate from lessons array
+    if (courseProgress.lessons && Array.isArray(courseProgress.lessons)) {
+      const completed = courseProgress.lessons.filter(l => l.completed).length;
+      const total = courseProgress.lessons.length;
+      return total > 0 ? Math.round((completed / total) * 100) : 0;
+    }
+
+    // Fallback: use enrolled course progress if available
+    const course = enrolledCourses.find(c => c.id === courseId);
+    if (course && course.progress !== undefined) {
+      return Math.round(course.progress);
+    }
+
+    return 0;
   };
 
   return (
@@ -99,13 +118,13 @@ export const Dashboard = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {enrolledCourses.map((course) => {
             const progressPercent = getProgressPercentage(course.id);
-            
+
             return (
               <Card key={course.id} className="overflow-hidden hover:shadow-lg transition-shadow">
                 {course.thumbnail && (
-                  <img 
-                    src={course.thumbnail} 
-                    alt={course.title} 
+                  <img
+                    src={course.thumbnail}
+                    alt={course.title}
                     className="w-full h-40 object-cover"
                   />
                 )}
@@ -123,9 +142,8 @@ export const Dashboard = () => {
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-2">
                       <div
-                        className={`h-2 rounded-full transition-all ${
-                          progressPercent === 100 ? 'bg-green-500' : 'bg-blue-500'
-                        }`}
+                        className={`h-2 rounded-full transition-all ${progressPercent === 100 ? 'bg-green-500' : 'bg-blue-500'
+                          }`}
                         style={{ width: `${progressPercent}%` }}
                       />
                     </div>
@@ -142,7 +160,7 @@ export const Dashboard = () => {
 
                   {/* Action Button */}
                   <Button
-                    onClick={() => navigate(`/course/${course.id}`)}
+                    onClick={() => navigate(`/courses/${course.id}`)}
                     className="w-full flex items-center justify-center gap-2"
                   >
                     <Play size={16} />

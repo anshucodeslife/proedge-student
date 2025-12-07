@@ -1,6 +1,5 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button } from '../../components/ui/Button';
 import { Home, ArrowLeft } from 'lucide-react';
 
 export const NotFound = () => {
@@ -18,19 +17,20 @@ export const NotFound = () => {
                 </div>
 
                 <div className="flex gap-4 justify-center">
-                    <Button
-                        variant="outline"
+                    <button
                         onClick={() => navigate(-1)}
-                        icon={ArrowLeft}
+                        className="flex items-center gap-2 px-4 py-2 border border-slate-300 rounded-lg text-slate-700 hover:bg-slate-50 transition-colors"
                     >
+                        <ArrowLeft size={18} />
                         Go Back
-                    </Button>
-                    <Button
+                    </button>
+                    <button
                         onClick={() => navigate('/')}
-                        icon={Home}
+                        className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
                     >
+                        <Home size={18} />
                         Go to Dashboard
-                    </Button>
+                    </button>
                 </div>
             </div>
         </div>

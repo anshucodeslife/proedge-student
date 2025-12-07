@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchCourseDetails, fetchCourseModules } from '../../store/slices/courseSlice';
+import { fetchCourseDetails, fetchCourseModules, fetchCourseProgress } from '../../store/slices/courseSlice';
 import { Button } from '../../components/ui/Button';
 import { PlayCircle, Clock, BookOpen, CheckCircle, Lock } from 'lucide-react';
 
@@ -9,18 +9,25 @@ export const CourseDetails = () => {
   const { courseId } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { currentCourse, currentModules, loading } = useSelector(state => state.courses);
+  const { currentCourse, currentModules, progress, loading } = useSelector(state => state.courses);
 
   useEffect(() => {
     if (courseId) {
       dispatch(fetchCourseDetails(courseId));
       dispatch(fetchCourseModules(courseId));
+      dispatch(fetchCourseProgress(courseId));
     }
   }, [dispatch, courseId]);
 
   if (loading || !currentCourse) {
     return <div className="text-center py-10 text-slate-400">Loading course details...</div>;
   }
+
+  // Get progress from Redux store
+  const courseProgress = progress[courseId];
+  const progressPercentage = courseProgress?.progressPercentage || currentCourse.progress || 0;
+  const completedLessons = courseProgress?.completedLessons || 0;
+  const totalLessons = courseProgress?.totalLessons || currentModules?.reduce((acc, m) => acc + (m.lessons?.length || 0), 0) || 0;
 
   return (
     <div className="space-y-8">
@@ -40,8 +47,9 @@ export const CourseDetails = () => {
           <p className="text-slate-500">{currentCourse.description || 'No description available'}</p>
 
           <div className="flex items-center gap-6 text-sm text-slate-500">
-            <div className="flex items-center gap-2"><Clock size={16} /> <span>{currentModules?.reduce((acc, m) => acc + (m.lessons?.length || 0), 0) || 0} Lessons</span></div>
-            <div className="flex items-center gap-2"><BookOpen size={16} /> <span>{currentCourse.progress || 0}% Complete</span></div>
+            <div className="flex items-center gap-2"><Clock size={16} /> <span>{totalLessons} Lessons</span></div>
+            <div className="flex items-center gap-2"><CheckCircle size={16} /> <span>{completedLessons} Completed</span></div>
+            <div className="flex items-center gap-2"><BookOpen size={16} /> <span>{Math.round(progressPercentage)}% Complete</span></div>
           </div>
 
           <div className="pt-4">
@@ -50,7 +58,7 @@ export const CourseDetails = () => {
               icon={PlayCircle}
               className="w-full md:w-auto"
             >
-              {currentCourse.progress > 0 ? 'Continue Learning' : 'Start Course'}
+              {progressPercentage > 0 ? 'Continue Learning' : 'Start Course'}
             </Button>
           </div>
         </div>
@@ -67,15 +75,23 @@ export const CourseDetails = () => {
                   <h3 className="font-bold text-slate-700 mb-3">{module.title}</h3>
                   <div className="space-y-2 pl-4 border-l-2 border-slate-100">
                     {module.lessons && module.lessons.length > 0 ? (
-                      module.lessons.map((lesson) => (
-                        <div key={lesson.id} className="flex items-center gap-3 text-sm text-slate-600 py-1">
-                          <PlayCircle size={16} className="text-indigo-600" />
-                          <span>{lesson.title}</span>
-                          <span className="ml-auto text-xs text-slate-400">
-                            {lesson.durationSec ? `${Math.floor(lesson.durationSec / 60)}:${String(lesson.durationSec % 60).padStart(2, '0')}` : '--:--'}
-                          </span>
-                        </div>
-                      ))
+                      module.lessons.map((lesson) => {
+                        // Check if lesson is completed from progress
+                        const lessonCompleted = courseProgress?.lessons?.find(l => l.id === lesson.id)?.completed;
+                        return (
+                          <div key={lesson.id} className="flex items-center gap-3 text-sm text-slate-600 py-1">
+                            {lessonCompleted ? (
+                              <CheckCircle size={16} className="text-emerald-500" />
+                            ) : (
+                              <PlayCircle size={16} className="text-indigo-600" />
+                            )}
+                            <span className={lessonCompleted ? 'text-emerald-600' : ''}>{lesson.title}</span>
+                            <span className="ml-auto text-xs text-slate-400">
+                              {lesson.durationSec ? `${Math.floor(lesson.durationSec / 60)}:${String(lesson.durationSec % 60).padStart(2, '0')}` : '--:--'}
+                            </span>
+                          </div>
+                        );
+                      })
                     ) : (
                       <p className="text-sm text-slate-400 italic">No lessons available yet</p>
                     )}
@@ -98,14 +114,17 @@ export const CourseDetails = () => {
               <div>
                 <div className="flex justify-between text-sm mb-2">
                   <span className="text-slate-600">Completion</span>
-                  <span className="font-semibold text-indigo-600">{currentCourse.progress || 0}%</span>
+                  <span className="font-semibold text-indigo-600">{Math.round(progressPercentage)}%</span>
                 </div>
                 <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
                   <div
                     className="h-full bg-indigo-600 rounded-full transition-all duration-500"
-                    style={{ width: `${currentCourse.progress || 0}%` }}
+                    style={{ width: `${progressPercentage}%` }}
                   />
                 </div>
+              </div>
+              <div className="text-sm text-slate-500">
+                <p>{completedLessons} of {totalLessons} lessons completed</p>
               </div>
             </div>
           </div>

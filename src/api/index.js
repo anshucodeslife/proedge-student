@@ -40,8 +40,12 @@ export const studentApi = {
   getNotifications: () => unwrap(api.get('/notifications')),
   // Attendance likely separate.
   // getAttendance: () => unwrap(api.get('/student/attendance')), // Commented out until verify endpoint
+  getLessons: (lessonId) => unwrap(api.get(`/student/lessons/${lessonId}`)),
   logWatch: (data) => {
-    // Backend endpoint /lms/watch-log does not exist yet.
-    return Promise.resolve({ data: { success: true } });
+    return unwrap(api.post(`/student/lessons/${data.lessonId}/progress`, {
+      watchedSec: data.watchedSec,
+      lastPosition: data.lastPosition || data.watchedSec,
+      completed: data.completed || false
+    }));
   }
 };
