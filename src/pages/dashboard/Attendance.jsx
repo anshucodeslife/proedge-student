@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Calendar as CalendarIcon, Download, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Calendar as CalendarIcon, Download, ChevronLeft, ChevronRight, CheckCircle, XCircle, Clock } from 'lucide-react';
 import api from '../../api/axios';
 
 const Attendance = () => {
@@ -35,7 +35,6 @@ const Attendance = () => {
       const data = res.data.data?.attendance || [];
       setAttendanceData(data);
 
-      // Calculate stats
       const present = data.filter(a => a.status === 'PRESENT').length;
       const absent = data.filter(a => a.status === 'ABSENT').length;
       const leave = data.filter(a => a.status === 'ON_LEAVE').length;
@@ -57,11 +56,9 @@ const Attendance = () => {
     const startingDayOfWeek = firstDay.getDay();
 
     const days = [];
-    // Add empty cells for days before month starts
     for (let i = 0; i < startingDayOfWeek; i++) {
       days.push(null);
     }
-    // Add actual days
     for (let day = 1; day <= daysInMonth; day++) {
       days.push(day);
     }
@@ -79,10 +76,10 @@ const Attendance = () => {
 
   const getStatusColor = (status) => {
     switch (status) {
-      case 'PRESENT': return 'bg-green-500 text-white';
-      case 'ABSENT': return 'bg-red-500 text-white';
-      case 'ON_LEAVE': return 'bg-yellow-500 text-white';
-      default: return 'bg-gray-100 text-gray-400';
+      case 'PRESENT': return 'bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-md';
+      case 'ABSENT': return 'bg-gradient-to-br from-orange-500 to-orange-600 text-white shadow-md';
+      case 'ON_LEAVE': return 'bg-gradient-to-br from-slate-400 to-slate-500 text-white shadow-md';
+      default: return 'bg-slate-50 text-slate-400 border border-slate-200';
     }
   };
 
@@ -91,7 +88,6 @@ const Attendance = () => {
   };
 
   const downloadReport = () => {
-    // Simple CSV download
     const csv = [
       ['Date', 'Status'],
       ...attendanceData.map(a => [
@@ -111,84 +107,116 @@ const Attendance = () => {
   const monthName = currentMonth.toLocaleString('default', { month: 'long', year: 'numeric' });
   const days = getDaysInMonth();
   const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const attendancePercentage = stats.total > 0 ? Math.round((stats.present / stats.total) * 100) : 0;
 
   return (
-    <div className="p-6">
-      <div className="mb-6 flex items-center justify-between">
+    <div className="w-full space-y-6">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">My Attendance</h1>
-          <p className="text-gray-600 mt-1">Track your attendance record</p>
+          <h1 className="text-2xl font-bold text-slate-800">My Attendance</h1>
+          <p className="text-sm text-slate-600 mt-1">Track your attendance record</p>
         </div>
         <button
           onClick={downloadReport}
-          className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 flex items-center gap-2"
+          className="px-4 py-2.5 bg-gradient-to-r from-blue-600 to-orange-600 hover:from-blue-700 hover:to-orange-700 text-white rounded-xl font-medium flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transition-all"
         >
           <Download className="w-4 h-4" />
-          Download Report
+          <span className="hidden sm:inline">Download Report</span>
+          <span className="sm:hidden">Download</span>
         </button>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <div className="bg-white rounded-lg shadow p-4">
-          <div className="text-sm text-gray-600">Total Days</div>
-          <div className="text-2xl font-bold text-gray-900">{stats.total}</div>
+      {/* Stats Cards - Responsive Grid */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        {/* Total Days */}
+        <div className="bg-white rounded-xl p-4 sm:p-6 shadow-md border border-slate-100">
+          <div className="flex items-center justify-between mb-2">
+            <div className="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center">
+              <CalendarIcon className="text-slate-600" size={20} />
+            </div>
+          </div>
+          <div className="text-xs sm:text-sm text-slate-600 font-medium">Total Days</div>
+          <div className="text-2xl sm:text-3xl font-bold text-slate-800 mt-1">{stats.total}</div>
         </div>
-        <div className="bg-green-50 rounded-lg shadow p-4">
-          <div className="text-sm text-green-700">Present</div>
-          <div className="text-2xl font-bold text-green-900">{stats.present}</div>
+
+        {/* Present */}
+        <div className="bg-white rounded-xl p-4 sm:p-6 shadow-md border border-slate-100">
+          <div className="flex items-center justify-between mb-2">
+            <div className="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center">
+              <CheckCircle className="text-blue-600" size={20} />
+            </div>
+          </div>
+          <div className="text-xs sm:text-sm text-slate-600 font-medium">Present</div>
+          <div className="text-2xl sm:text-3xl font-bold text-blue-600 mt-1">{stats.present}</div>
+          <div className="text-xs text-slate-500 mt-1">{attendancePercentage}%</div>
         </div>
-        <div className="bg-red-50 rounded-lg shadow p-4">
-          <div className="text-sm text-red-700">Absent</div>
-          <div className="text-2xl font-bold text-red-900">{stats.absent}</div>
+
+        {/* Absent */}
+        <div className="bg-white rounded-xl p-4 sm:p-6 shadow-md border border-slate-100">
+          <div className="flex items-center justify-between mb-2">
+            <div className="w-10 h-10 rounded-lg bg-orange-50 flex items-center justify-center">
+              <XCircle className="text-orange-600" size={20} />
+            </div>
+          </div>
+          <div className="text-xs sm:text-sm text-slate-600 font-medium">Absent</div>
+          <div className="text-2xl sm:text-3xl font-bold text-orange-600 mt-1">{stats.absent}</div>
         </div>
-        <div className="bg-yellow-50 rounded-lg shadow p-4">
-          <div className="text-sm text-yellow-700">On Leave</div>
-          <div className="text-2xl font-bold text-yellow-900">{stats.leave}</div>
+
+        {/* On Leave */}
+        <div className="bg-white rounded-xl p-4 sm:p-6 shadow-md border border-slate-100">
+          <div className="flex items-center justify-between mb-2">
+            <div className="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center">
+              <Clock className="text-slate-600" size={20} />
+            </div>
+          </div>
+          <div className="text-xs sm:text-sm text-slate-600 font-medium">On Leave</div>
+          <div className="text-2xl sm:text-3xl font-bold text-slate-600 mt-1">{stats.leave}</div>
         </div>
       </div>
 
-      {/* Calendar */}
-      <div className="bg-white rounded-lg shadow p-6">
+      {/* Calendar Card */}
+      <div className="bg-white rounded-xl shadow-md p-4 sm:p-6 border border-slate-100">
         {/* Month Navigation */}
         <div className="flex items-center justify-between mb-6">
           <button
             onClick={() => changeMonth(-1)}
-            className="p-2 hover:bg-gray-100 rounded-lg"
+            className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
           >
-            <ChevronLeft className="w-5 h-5" />
+            <ChevronLeft className="w-5 h-5 text-slate-600" />
           </button>
-          <h2 className="text-xl font-semibold flex items-center gap-2">
-            <CalendarIcon className="w-5 h-5" />
-            {monthName}
+          <h2 className="text-lg sm:text-xl font-bold text-slate-800 flex items-center gap-2">
+            <CalendarIcon className="w-5 h-5 hidden sm:block" />
+            <span className="text-sm sm:text-xl">{monthName}</span>
           </h2>
           <button
             onClick={() => changeMonth(1)}
-            className="p-2 hover:bg-gray-100 rounded-lg"
+            className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
           >
-            <ChevronRight className="w-5 h-5" />
+            <ChevronRight className="w-5 h-5 text-slate-600" />
           </button>
         </div>
 
         {/* Calendar Grid */}
-        <div className="grid grid-cols-7 gap-2">
+        <div className="grid grid-cols-7 gap-1 sm:gap-2">
           {/* Week day headers */}
           {weekDays.map(day => (
-            <div key={day} className="text-center font-semibold text-gray-600 py-2">
-              {day}
+            <div key={day} className="text-center font-semibold text-slate-600 py-2 text-xs sm:text-sm">
+              <span className="hidden sm:inline">{day}</span>
+              <span className="sm:hidden">{day.slice(0, 1)}</span>
             </div>
           ))}
 
           {/* Calendar days */}
           {days.map((day, index) => {
             const attendance = getAttendanceForDate(day);
-            const statusColor = attendance ? getStatusColor(attendance.status) : 'bg-gray-50 text-gray-900';
+            const statusColor = attendance ? getStatusColor(attendance.status) : 'bg-slate-50 text-slate-900';
 
             return (
               <div
                 key={index}
-                className={`aspect-square flex items-center justify-center rounded-lg ${day ? statusColor : ''
-                  } ${day ? 'cursor-pointer hover:opacity-80' : ''}`}
+                className={`aspect-square flex items-center justify-center rounded-lg text-xs sm:text-sm font-medium ${day ? statusColor : ''
+                  } ${day ? 'cursor-pointer hover:scale-105 transition-transform' : ''}`}
                 title={attendance ? attendance.status : ''}
               >
                 {day || ''}
@@ -197,23 +225,23 @@ const Attendance = () => {
           })}
         </div>
 
-        {/* Legend */}
-        <div className="mt-6 flex flex-wrap gap-4 justify-center">
+        {/* Legend - Responsive */}
+        <div className="mt-6 flex flex-wrap gap-3 sm:gap-4 justify-center">
           <div className="flex items-center gap-2">
-            <div className="w-4 h-4 bg-green-500 rounded"></div>
-            <span className="text-sm text-gray-600">Present</span>
+            <div className="w-3 h-3 sm:w-4 sm:h-4 bg-gradient-to-br from-blue-500 to-blue-600 rounded shadow-sm"></div>
+            <span className="text-xs sm:text-sm text-slate-600 font-medium">Present</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-4 h-4 bg-red-500 rounded"></div>
-            <span className="text-sm text-gray-600">Absent</span>
+            <div className="w-3 h-3 sm:w-4 sm:h-4 bg-gradient-to-br from-orange-500 to-orange-600 rounded shadow-sm"></div>
+            <span className="text-xs sm:text-sm text-slate-600 font-medium">Absent</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-4 h-4 bg-yellow-500 rounded"></div>
-            <span className="text-sm text-gray-600">On Leave</span>
+            <div className="w-3 h-3 sm:w-4 sm:h-4 bg-gradient-to-br from-slate-400 to-slate-500 rounded shadow-sm"></div>
+            <span className="text-xs sm:text-sm text-slate-600 font-medium">On Leave</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-4 h-4 bg-gray-100 border border-gray-300 rounded"></div>
-            <span className="text-sm text-gray-600">No Record</span>
+            <div className="w-3 h-3 sm:w-4 sm:h-4 bg-slate-50 border border-slate-300 rounded"></div>
+            <span className="text-xs sm:text-sm text-slate-600 font-medium">No Record</span>
           </div>
         </div>
       </div>
