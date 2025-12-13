@@ -135,11 +135,11 @@ export const Dashboard = () => {
             return (
               <div
                 key={course.id}
-                className="group relative overflow-hidden rounded-2xl bg-white shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105 border border-slate-100"
+                className="group relative overflow-hidden rounded-2xl bg-white shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105 border border-slate-100 flex flex-col"
               >
                 {/* Course Thumbnail */}
                 {course.thumbnail && (
-                  <div className="relative h-40 sm:h-48 overflow-hidden">
+                  <div className="relative h-40 sm:h-48 overflow-hidden flex-shrink-0">
                     <img
                       src={course.thumbnail}
                       alt={course.title}
@@ -167,11 +167,11 @@ export const Dashboard = () => {
                   </div>
                 )}
 
-                <div className="p-5">
+                <div className="p-5 flex flex-col flex-1">
                   <h3 className="font-bold text-lg text-slate-800 mb-2 line-clamp-1 group-hover:text-blue-600 transition-colors">
                     {course.title}
                   </h3>
-                  <p className="text-sm text-slate-600 mb-4 line-clamp-2">
+                  <p className="text-sm text-slate-600 mb-4 h-10 line-clamp-2">
                     {course.description || 'No description available'}
                   </p>
 
@@ -184,18 +184,18 @@ export const Dashboard = () => {
                     <div className="w-full bg-slate-200 rounded-full h-2.5 overflow-hidden">
                       <div
                         className={`h-full rounded-full transition-all duration-500 ${progressPercent === 100
-                            ? 'bg-gradient-to-r from-blue-500 to-orange-500'
-                            : 'bg-gradient-to-r from-blue-600 to-blue-400'
+                          ? 'bg-gradient-to-r from-blue-500 to-orange-500'
+                          : 'bg-gradient-to-r from-blue-600 to-blue-400'
                           }`}
                         style={{ width: `${progressPercent}%` }}
                       />
                     </div>
                   </div>
 
-                  {/* Action Button */}
+                  {/* Action Button - Pushed to bottom */}
                   <Button
                     onClick={() => navigate(`/courses/${course.id}`)}
-                    className="w-full bg-gradient-to-r from-blue-600 to-orange-600 hover:from-blue-700 hover:to-orange-700 text-white font-semibold py-3 rounded-xl flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transition-all"
+                    className="w-full bg-gradient-to-r from-blue-600 to-orange-600 hover:from-blue-700 hover:to-orange-700 text-white font-semibold py-3 rounded-xl flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transition-all mt-auto"
                   >
                     <Play size={18} />
                     <span>{progressPercent === 0 ? 'Start Learning' : 'Continue Learning'}</span>

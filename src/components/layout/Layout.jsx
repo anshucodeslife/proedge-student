@@ -1,13 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { Sidebar } from './Sidebar';
 import { Navbar } from './Navbar';
-import { logout } from '../../store/slices/authSlice';
+import { logout, fetchProfile } from '../../store/slices/authSlice';
 import { useResponsive } from '../../hooks/useResponsive';
 
 export const Layout = () => {
   const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { isMobile, isTablet } = useResponsive();
@@ -24,6 +25,15 @@ export const Layout = () => {
   const closeMobileMenu = () => {
     setMobileMenuOpen(false);
   };
+
+  const toggleCollapse = () => {
+    setIsCollapsed(!isCollapsed);
+  };
+
+  // Fetch user profile on mount to get studentId and other details
+  useEffect(() => {
+    dispatch(fetchProfile());
+  }, [dispatch]);
 
   return (
     <div className="flex h-screen bg-slate-50 font-sans overflow-hidden">
@@ -54,6 +64,8 @@ export const Layout = () => {
           onClose={closeMobileMenu}
           onLogout={handleLogout}
           isMobile={false}
+          isCollapsed={isCollapsed}
+          onToggleCollapse={toggleCollapse}
         />
       </div>
 

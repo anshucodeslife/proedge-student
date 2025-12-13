@@ -65,7 +65,8 @@ const authSlice = createSlice({
         state.error = action.error.message;
       })
       .addCase(fetchProfile.fulfilled, (state, action) => {
-        state.user = action.payload;
+        // API returns { profile: {...} }, so extract the profile
+        state.user = action.payload.profile || action.payload;
       });
   }
 });

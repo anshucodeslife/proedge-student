@@ -1,10 +1,10 @@
 
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, BookOpen, Calendar, Bell, Settings, LogOut, X } from 'lucide-react';
+import { LayoutDashboard, BookOpen, Calendar, Bell, Settings, LogOut, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '../ui/Button';
 
-export const Sidebar = ({ isOpen, onClose, onLogout, isMobile }) => {
+export const Sidebar = ({ isOpen, onClose, onLogout, isMobile, isCollapsed, onToggleCollapse }) => {
   const menuItems = [
     { to: '/', icon: LayoutDashboard, label: 'Dashboard', color: 'from-blue-500 to-blue-700' },
     { to: '/courses', icon: BookOpen, label: 'My Courses', color: 'from-orange-500 to-orange-700' },
@@ -20,13 +20,19 @@ export const Sidebar = ({ isOpen, onClose, onLogout, isMobile }) => {
       // Gradient background like Rajratan
       "bg-gradient-to-br from-slate-800 via-slate-900 to-slate-950",
       // Mobile: Full screen overlay
-      isMobile ? "w-full max-w-xs" : "w-64",
+      isMobile ? "w-full max-w-xs" : (isCollapsed ? "w-20" : "w-64"),
       // Desktop: Fixed sidebar
       "relative"
     )}>
       {/* Header with Logo */}
-      <div className="h-20 flex items-center px-6 border-b border-white/10 justify-between">
-        <div className="flex items-center gap-3">
+      <div className={cn(
+        "h-20 flex items-center border-b border-white/10 justify-between",
+        isCollapsed && !isMobile ? "px-3" : "px-6"
+      )}>
+        <div className={cn(
+          "flex items-center gap-3",
+          isCollapsed && !isMobile && "justify-center w-full"
+        )}>
           <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center shadow-lg p-1.5">
             <img
               src="/proedge_logo.png"
@@ -34,10 +40,12 @@ export const Sidebar = ({ isOpen, onClose, onLogout, isMobile }) => {
               className="w-full h-full object-contain"
             />
           </div>
-          <div>
-            <h2 className="text-white font-bold text-lg">ProEdge</h2>
-            <p className="text-xs text-slate-400">Learning</p>
-          </div>
+          {(!isCollapsed || isMobile) && (
+            <div>
+              <h2 className="text-white font-bold text-lg">ProEdge</h2>
+              <p className="text-xs text-slate-400">Learning</p>
+            </div>
+          )}
         </div>
 
         {/* Close button - only on mobile */}
@@ -47,6 +55,17 @@ export const Sidebar = ({ isOpen, onClose, onLogout, isMobile }) => {
             className="p-2 text-slate-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
           >
             <X size={20} />
+          </button>
+        )}
+
+        {/* Collapse toggle - only on desktop */}
+        {!isMobile && onToggleCollapse && (
+          <button
+            onClick={onToggleCollapse}
+            className="p-2 text-slate-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+            title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+          >
+            {isCollapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
           </button>
         )}
       </div>
@@ -62,8 +81,10 @@ export const Sidebar = ({ isOpen, onClose, onLogout, isMobile }) => {
               "group flex items-center gap-4 px-4 py-3.5 rounded-xl transition-all duration-200 text-sm font-medium relative overflow-hidden",
               isActive
                 ? "bg-gradient-to-r " + item.color + " text-white shadow-lg shadow-orange-500/20"
-                : "text-slate-300 hover:bg-white/5 hover:text-white"
+                : "text-slate-300 hover:bg-white/5 hover:text-white",
+              isCollapsed && !isMobile && "justify-center px-2"
             )}
+            title={isCollapsed && !isMobile ? item.label : undefined}
           >
             {({ isActive }) => (
               <>
@@ -76,11 +97,14 @@ export const Sidebar = ({ isOpen, onClose, onLogout, isMobile }) => {
                 )}>
                   <item.icon size={20} />
                 </div>
-                <span className="flex-1">{item.label}</span>
-
-                {/* Active indicator */}
-                {isActive && (
-                  <div className="w-1 h-8 bg-white/30 rounded-full absolute right-2" />
+                {(!isCollapsed || isMobile) && (
+                  <>
+                    <span className="flex-1">{item.label}</span>
+                    {/* Active indicator */}
+                    {isActive && (
+                      <div className="w-1 h-8 bg-white/30 rounded-full absolute right-2" />
+                    )}
+                  </>
                 )}
               </>
             )}
@@ -93,12 +117,16 @@ export const Sidebar = ({ isOpen, onClose, onLogout, isMobile }) => {
         {/* Logout Button */}
         <button
           onClick={onLogout}
-          className="flex items-center gap-4 px-4 py-3.5 w-full text-slate-300 hover:bg-red-500/10 hover:text-red-400 rounded-xl transition-all text-sm font-medium group"
+          className={cn(
+            "flex items-center gap-4 px-4 py-3.5 w-full text-slate-300 hover:bg-red-500/10 hover:text-red-400 rounded-xl transition-all text-sm font-medium group",
+            isCollapsed && !isMobile && "justify-center px-2"
+          )}
+          title={isCollapsed && !isMobile ? "Sign Out" : undefined}
         >
           <div className="w-10 h-10 rounded-lg bg-white/5 group-hover:bg-red-500/20 flex items-center justify-center transition-all">
             <LogOut size={20} />
           </div>
-          <span className="flex-1">Sign Out</span>
+          {(!isCollapsed || isMobile) && <span className="flex-1">Sign Out</span>}
         </button>
       </div>
     </aside>
